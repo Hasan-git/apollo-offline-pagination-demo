@@ -1,0 +1,60 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<div style="text-align:center">
+  <h1>
+    Offix demo!
+  </h1>
+
+  <div style="margin-bottom: 20px;">
+
+    <button mat-raised-button color="accent" (click)="loadGreetings()">Reload Greatings</button>
+
+  </div>
+
+  <div class="row">
+
+    <!-- GREETINGS LIST -->
+    <mat-card class="col-xs-4" style="min-height: 300px; margin-right: 10px;">
+
+      <h3>Greetings</h3>
+
+      <mat-list role="list">
+        <mat-list-item role="listitem" *ngFor="let greeting of greetings">
+          <div style="display: flex; justify-content: space-between; width: 100%;">
+            <span> {{greeting.msg}}</span>
+            <span>
+              <mat-icon class="mat-18" style="color:goldenrod;cursor: pointer;">edit</mat-icon>
+              <mat-icon class="mat-18" style="color:red;cursor: pointer;" (click)="deleteGreeting(greeting.id)">delete</mat-icon>
+            </span>
+          </div>
+        </mat-list-item>
+      </mat-list>
+
+    </mat-card>
+    <!-- / GREETINGS LIST -->
+
+    <!-- GREETINGS LIST -->
+    <mat-card class="col-xs-4" style="min-height: 300px;">
+
+      <h3>New Greeting</h3>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Message</mat-label>
+        <input matInput [formControl]="message" placeholder="Message">
+        <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
+      </mat-form-field>
+
+      <div>
+        <button mat-raised-button color="primary" (click)="addGreeting()">Add Greeting</button>
+      </div>
+
+    </mat-card>
+    <!-- / GREETINGS LIST -->
+
+
+  </div>
+
+
+</div>
+
+
+<router-outlet></router-outlet>
