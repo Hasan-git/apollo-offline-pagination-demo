@@ -1,0 +1,23 @@
+<h3>New Patient</h3>
+
+<mat-form-field appearance="outline">
+  <mat-label>Name</mat-label>
+  <input matInput [(ngModel)]="patient.name" name="name" placeholder="Name">
+  <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
+</mat-form-field>
+
+<mat-form-field appearance="outline">
+  <mat-label>Contact</mat-label>
+  <input matInput [(ngModel)]="patient.contact" name="contact" placeholder="Contact">
+  <mat-icon matSuffix>phone</mat-icon>
+</mat-form-field>
+
+<mat-form-field appearance="outline">
+  <mat-label>Email</mat-label>
+  <input matInput [(ngModel)]="patient.email" name="email" placeholder="Email">
+  <mat-icon matSuffix>email</mat-icon>
+</mat-form-field>
+
+<div>
+  <button mat-raised-button color="primary" (click)="createPatient()">Create patient</button>
+</div>

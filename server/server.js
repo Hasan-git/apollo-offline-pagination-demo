@@ -31,7 +31,7 @@ const typeDefs = gql`
 
    type Mutation {
 
-    createPatient(input: PatientInput): Patient
+    createPatient(patient: PatientInput): Patient
 
     deletePatient(id: String!): Patient
 
@@ -41,18 +41,18 @@ const typeDefs = gql`
 const resolvers = {
   Mutation: {
 
-    createPatient: async (obj, { input }, context, info) => {
+    createPatient: async (obj, { patient }, context, info) => {
 
-      let patient = {
-        id: input.id ? input.id : guid(),
-        name: input.name,
-        contact: input.contact,
-        email: input.email,
+      let patient_ = {
+        id: patient.id ? patient.id : guid(),
+        name: patient.name,
+        contact: patient.contact,
+        email: patient.email,
       }
 
-      patients.push(patient)
+      patients.push(patient_)
 
-      return patient
+      return patient_
     },
     deletePatient: async (obj, { id }, context, info) => {
 
@@ -74,7 +74,7 @@ const resolvers = {
 
       // @ filter patients
       if (args.filter)
-        filteredPatients = patients.filter(obj => obj.name.startsWith(args.filter))
+        filteredPatients = patients.filter(obj => obj.name.toLowerCase().startsWith(args.filter.toLowerCase()))
 
       // @ paginate
       let { data } = paginator(filteredPatients, args.page, args.limit)
