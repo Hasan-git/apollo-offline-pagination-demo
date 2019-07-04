@@ -24,8 +24,8 @@ export class PatientsService {
     return this._apollo.watchQuery({
       query: PATIENTS_QUERY,
       variables: { page, limit, filter },
-      fetchPolicy: "cache-and-network"
-      // fetchPolicy: "cache-only" // @ Try to fetch from cache to test
+      // fetchPolicy: "cache-and-network"
+      fetchPolicy: "cache-only" // @ Try to fetch from cache to test
     })
   }
 

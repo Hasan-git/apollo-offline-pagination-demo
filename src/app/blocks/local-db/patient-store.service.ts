@@ -19,7 +19,8 @@ export class PatientStoreService extends BaseService {
 
     return this.connection.insert<IPatient>({
       into: 'Patients',
-      values: [patient_]
+      values: [patient_],
+      upsert: true // @ insrent or update existing
     }).catch((reason) => {
       // console.log(reason)
     })

@@ -84,12 +84,12 @@ export class GraphQLModule {
       // https://www.apollographql.com/docs/react/advanced/caching.html#cacheRedirect
       cacheRedirects: {
         Query: {
-
           // @ called when query is not found in cache
           patients: (_, args, { getCacheKey }) => {
 
+
             // @ Get filtered patients from local db
-            _patientStoreService
+            return _patientStoreService
               .getPatients(args.limit, args.page, args.filter)
               .then(data => {
 
@@ -141,8 +141,11 @@ export class GraphQLModule {
       debug: false
     });
 
+
     const SCHEMA_VERSION = "0.3";
     const SCHEMA_VERSION_KEY = 'apollo-schema-version';
+
+    persistor.restore();
 
     // Read the current schema version from AsyncStorage.
     const currentVersion = window.localStorage.getItem(SCHEMA_VERSION_KEY);

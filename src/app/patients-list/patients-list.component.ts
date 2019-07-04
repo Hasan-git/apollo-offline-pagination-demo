@@ -80,7 +80,7 @@ export class PatientsListComponent implements OnInit {
       .subscribe(({ data, loading }) => {
 
         if (data && data['patients'] && data['patients'].length) {
-
+          console.log("Data['Patients']", data['patients'])
           this.dataSource = data['patients']
           this.setLength(data['patients'])
         }

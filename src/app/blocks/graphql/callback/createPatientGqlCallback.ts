@@ -35,7 +35,8 @@ export class createPatientGqlCallback {
           key.startsWith(`patients(`) && delete proxy.data.data.ROOT_QUERY[key];
         });
 
-      // proxy.writeData("topic", 0);
+      // @ update persisted cache
+      proxy.writeData({ data: { patientStore: new Date().toISOString() } });
 
     };
   }
