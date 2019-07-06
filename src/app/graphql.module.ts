@@ -1,3 +1,4 @@
+import { PatientsService } from './blocks/services/patients.service';
 import { filter, map, flatMap } from 'rxjs/operators';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
@@ -7,14 +8,15 @@ import { HttpLinkModule, HttpLink } from 'apollo-angular-link-http';
 import { InMemoryCache, defaultDataIdFromObject } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
 import { persistCache, CachePersistor } from 'apollo-cache-persist';
+// import { persistCache, CachePersistor } from '@graphqlheroes/apollo-cache-persist';
 import { onError } from 'apollo-link-error';
 import OfflineLink from "apollo-link-offline";
 import * as localforage from "localforage";
-import { DefaultOptions } from 'apollo-client';
 import { PatientStoreService } from './blocks/local-db/patient-store.service';
 import { PATIENT_FRAGMENT, PATIENTS_QUERY } from './blocks/queries/queries';
 import { promise } from 'protractor';
-import { from } from 'rxjs';
+import { from, of, defer, Subject, BehaviorSubject, Observable } from 'rxjs';
+import { DefaultOptions } from 'apollo-client/ApolloClient';
 
 const uri = 'http://localhost:4000/graphql';
 
@@ -23,7 +25,7 @@ const uri = 'http://localhost:4000/graphql';
     HttpClientModule,
     ApolloModule,
     HttpLinkModule
-  ]
+  ],
 })
 export class GraphQLModule {
 
@@ -45,7 +47,8 @@ export class GraphQLModule {
   constructor(
     private apollo: Apollo,
     private httpLink: HttpLink,
-    private _patientStoreService: PatientStoreService
+    private _patientStoreService: PatientStoreService,
+    private _patientsService: PatientsService
   ) {
 
     const __errorLink = onError(({ graphQLErrors, networkError }) => {
@@ -84,44 +87,17 @@ export class GraphQLModule {
       // https://www.apollographql.com/docs/react/advanced/caching.html#cacheRedirect
       cacheRedirects: {
         Query: {
-          // @ called when query is not found in cache
           patients: (_, args, { getCacheKey }) => {
 
-
-            // @ Get filtered patients from local db
             return _patientStoreService
               .getPatients(args.limit, args.page, args.filter)
               .then(data => {
 
-                if (!data.length)
-                  return
-
-                //-------------------------------------
-                //      @ Write Query
-                //--------------------------------------
-
-                let patients = []
-                data.map(element => {
-                  patients.push(this.apollo.getClient().cache.readFragment(
-                    {
-                      fragment: PATIENT_FRAGMENT,
-                      id: `Patient:${element.id}`
-                    })
-                  )
-                })
-
-                this.apollo.getClient().cache.writeQuery({
-                  query: PATIENTS_QUERY,
-                  variables: args,
-                  data: { patients: patients }
-                })
-
-                //--------------------------------------
-                //      @ Return resolved data
-                //--------------------------------------
-
-                // @ Help needed: doesn't work when called in async
-                return data.map(obj => getCacheKey({ __typename: "Patient", id: obj.id }))
+                if (data.length) {
+                  console.log("CacheRedirects['Patients']", data)
+                  // @ Help needed: doesn't work when called in async
+                  return data.map(obj => getCacheKey({ __typename: "Patient", id: obj.id }))
+                }
 
               },
                 (error) => console.error(error)
@@ -144,8 +120,6 @@ export class GraphQLModule {
 
     const SCHEMA_VERSION = "0.3";
     const SCHEMA_VERSION_KEY = 'apollo-schema-version';
-
-    persistor.restore();
 
     // Read the current schema version from AsyncStorage.
     const currentVersion = window.localStorage.getItem(SCHEMA_VERSION_KEY);

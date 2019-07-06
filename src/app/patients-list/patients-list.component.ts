@@ -3,7 +3,7 @@ import { IPatient } from '../blocks/interfaces/IPatient';
 import { MatTableDataSource, MatPaginator, MatSort } from '@angular/material';
 import { FormControl } from '@angular/forms';
 import { PatientsService } from '../blocks/services/patients.service';
-import { merge } from 'rxjs';
+import { merge, Subject } from 'rxjs';
 import { map, debounceTime, distinctUntilChanged, tap, takeUntil } from 'rxjs/operators';
 
 @Component({
@@ -20,6 +20,7 @@ export class PatientsListComponent implements OnInit {
   public dataSource = new MatTableDataSource<IPatient>([]);
   public filter = new FormControl("");
   public lengthHack = 0;
+  private _unsubscribeAll: Subject<any>;
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
 
@@ -27,7 +28,9 @@ export class PatientsListComponent implements OnInit {
 
   constructor(
     private _patientsService: PatientsService
-  ) { }
+  ) {
+    this._unsubscribeAll = new Subject();
+  }
 
   ngOnInit() {
 
@@ -110,4 +113,8 @@ export class PatientsListComponent implements OnInit {
     //   })
   }
 
+  unsubscribe() {
+    this._unsubscribeAll.next();
+    this._unsubscribeAll.complete();
+  }
 }

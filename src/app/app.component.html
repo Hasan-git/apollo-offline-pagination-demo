@@ -4,6 +4,23 @@
     Apollo pagination demo!
   </h1>
 
+  <div class="steps">
+    <h3>Steps</h3>
+    <div class="item">
+      1. Press load all patients button ( so all patients will be cached localy )
+      <button mat-raised-button color="accent" (click)="getAllPatients()"> Load all patients from server </button>
+    </div>
+    <div class="item"> 2. Refresh page ( table will try to fetch data from cache-only and pass through cacheRedirects )</div>
+    <div class="item"> 3. CacheRedirects should resolve patients and return array of patients to apollo-cache (not working)</div>
+    <div class="item"> 4. Open console to find patients resolved in cacheRedirects</div>
+
+    <!-- <div class="item"> 2. Press Create patient button to create new patient ( so queries will be out of date and deleted from
+      cache )</div>
+    <div class="item"> 3. Navigate between table pages ( table will try to fetch data from cache-only )</div> -->
+
+
+  </div>
+
   <div class="row">
 
     <app-create-patient class="col-xs-4 card card-3" style="min-height: 300px;">

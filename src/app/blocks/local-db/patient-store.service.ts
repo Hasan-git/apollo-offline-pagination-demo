@@ -20,7 +20,7 @@ export class PatientStoreService extends BaseService {
     return this.connection.insert<IPatient>({
       into: 'Patients',
       values: [patient_],
-      upsert: true // @ insrent or update existing
+      // upsert: true // @ insert or update existing
     }).catch((reason) => {
       // console.log(reason)
     })
@@ -32,11 +32,11 @@ export class PatientStoreService extends BaseService {
     let skip = page == 1 ? 0 : page * limit
     let response = this.connection.select<IPatient>({
       from: 'Patients',
-      // where: {
-      //   name: {
-      //     like: '%a%'
-      //   },
-      // },
+      where: {
+        name: {
+          like: `%${filter}%`
+        },
+      },
       // order: {
       //   by: 'country',
       //   type: "asc"

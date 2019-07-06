@@ -14,16 +14,16 @@ export class createPatientGqlCallback {
   }
 
 
-  public static update(proxy, { data }) {
+  public static update(proxy, ev) {
 
-    if (data && data.createPatient) {
+    if (ev.data && ev.data.createPatient) {
 
       //--------------------------------------
       //     @ Add patient to local db
       //--------------------------------------
 
       let store = new PatientStoreService()
-      store.addPatient(data.createPatient).then(data => console.log("Patient added to store after mutation", data))
+      store.addPatient(ev.data.createPatient).then(data => console.log("Patient added to store after mutation", data))
 
 
       //--------------------------------------
