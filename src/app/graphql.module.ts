@@ -89,12 +89,18 @@ export class GraphQLModule {
         Query: {
           patients: (_, args, { getCacheKey }) => {
 
+            _patientsService.restore(args)
+
+            return
+
             return _patientStoreService
               .getPatients(args.limit, args.page, args.filter)
               .then(data => {
 
                 if (data.length) {
-                  console.log("CacheRedirects['Patients']", data)
+
+                  console.log("CacheRedirects['Patients']", data, "args", args)
+
                   // @ Help needed: doesn't work when called in async
                   return data.map(obj => getCacheKey({ __typename: "Patient", id: obj.id }))
                 }

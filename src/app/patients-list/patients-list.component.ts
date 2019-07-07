@@ -1,3 +1,4 @@
+import { Apollo } from 'apollo-angular';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { IPatient } from '../blocks/interfaces/IPatient';
 import { MatTableDataSource, MatPaginator, MatSort } from '@angular/material';
@@ -5,6 +6,7 @@ import { FormControl } from '@angular/forms';
 import { PatientsService } from '../blocks/services/patients.service';
 import { merge, Subject } from 'rxjs';
 import { map, debounceTime, distinctUntilChanged, tap, takeUntil } from 'rxjs/operators';
+import { GREETINGS_QUERY } from '../blocks/queries/queries';
 
 @Component({
   selector: 'app-patients-list',
@@ -27,9 +29,18 @@ export class PatientsListComponent implements OnInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   constructor(
-    private _patientsService: PatientsService
+    private _patientsService: PatientsService,
+    private _apollo: Apollo
   ) {
     this._unsubscribeAll = new Subject();
+
+    // @ proof that greetings persisted query will not be invalidated when new patient created
+    // @ check if greetings query in ROOT_QUERY if exists after creating a patient
+    this._apollo.watchQuery({
+      query: GREETINGS_QUERY,
+      fetchPolicy: "cache-and-network"
+    }).valueChanges.subscribe(data => console.log(data))
+
   }
 
   ngOnInit() {
@@ -82,7 +93,7 @@ export class PatientsListComponent implements OnInit {
       .valueChanges
       .subscribe(({ data, loading }) => {
 
-        if (data && data['patients'] && data['patients'].length) {
+        if (data && data['patients']) {
           console.log("Data['Patients']", data['patients'])
           this.dataSource = data['patients']
           this.setLength(data['patients'])

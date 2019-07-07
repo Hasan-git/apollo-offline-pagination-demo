@@ -6,6 +6,16 @@ const auditLogger = require('@aerogear/voyager-audit')
 const { guid, paginator } = require('./utils')
 const { patients } = require('./data.js')
 
+const greetings = [
+  {
+    id: "1",
+    message: "Hello world"
+  },
+  {
+    id: "2",
+    message: "Greeting from medcilia"
+  }
+]
 
 // Types
 const typeDefs = gql`
@@ -24,9 +34,17 @@ const typeDefs = gql`
     email : String
   }
 
+  type Greeting {
+    id : String
+    msg : String
+    version : String
+  }
+
   type Query {
 
     patients(limit: Int!, page:Int!, filter: String): [Patient]
+
+    greetings : [Greeting]
   }
 
    type Mutation {
@@ -80,6 +98,9 @@ const resolvers = {
       let { data } = paginator(filteredPatients, args.page, args.limit)
 
       return data
+    },
+    greetings: (obj, args, context, info) => {
+      return greetings
     }
   }
 }

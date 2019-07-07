@@ -3,6 +3,7 @@ import { DELETE_GREETING, PATIENTS_QUERY, CREATE_PATIENT, PATIENT_FRAGMENT } fro
 import { Injectable } from '@angular/core';
 import { createPatientGqlCallback } from '../graphql/callback/createPatientGqlCallback';
 import { PatientStoreService } from '../local-db/patient-store.service';
+import { QueryManager } from 'apollo-client/core/QueryManager';
 
 @Injectable({
   providedIn: 'root'
@@ -39,8 +40,8 @@ export class PatientsService {
     return this._apollo.watchQuery({
       query: PATIENTS_QUERY,
       variables: { page, limit, filter },
-      // fetchPolicy: "cache-and-network"
-      fetchPolicy: "cache-only"
+      fetchPolicy: "cache-and-network"
+      // fetchPolicy: "cache-only"
 
     })
   }
@@ -50,7 +51,7 @@ export class PatientsService {
       mutation: CREATE_PATIENT,
       variables: { patient: patient },
       optimisticResponse: createPatientGqlCallback.optimisticResponse(patient),
-      update: (proxy, ev) => createPatientGqlCallback.update(proxy, ev)
+      update: (proxy, ev) => createPatientGqlCallback.update(proxy, ev, this._apollo.getClient())
 
     });
   }
@@ -79,10 +80,12 @@ export class PatientsService {
   //----------------------------------------------
   // @ Testing
   //----------------------------------------------
-  store(data, args) {
+  writeQuery(data, args) {
 
-    if (!data || !args.limit || !args.page)
+    if (!args.limit || !args.page)
       return
+
+    let client = this._apollo.getClient()
 
     let patients = []
 
@@ -98,55 +101,36 @@ export class PatientsService {
     })
 
 
-    this._apollo.getClient().cache.writeQuery({
+    // @ CRITICAL INFO: writeQuery by apollo client will broadcast queries
+    client.writeQuery({
       query: PATIENTS_QUERY,
       variables: { filter: args.filter || "", page: args.page || 0, limit: args.limit || 0 },
       data: { patients: patients }
     })
-
-    this._apollo.getClient().reFetchObservableQueries()
   }
 
-  clear(args, getCacheKey) {
+  restore(args) {
 
-    // @ Get filtered patients from local db
-    return this._patientStoreService
+    this._patientStoreService
       .getPatients(args.limit, args.page, args.filter)
       .then(data => {
 
-        if (data.length) {
-
-          // @ clear cache watches
-
-          this._apollo.getClient().cache['watches'].clear()
-
-
-          let manager: any = this._apollo.getClient().queryManager
-          // manager.queries.clear()
-          console.log(manager.queries)
-          manager.queries.forEach(element => {
-            // console.log(element)
-            console.log(element.observableQuery.options.query.definitions[0].name.value, this.deepEqual(element.observableQuery.variables, args))
-            if (element.observableQuery.options.query.definitions[0].name.value && this.deepEqual(element.observableQuery.variables, args)) {
-              console.log(element.observableQuery.options.query.definitions[0].name.value, element.observableQuery.variables, args)
-            } else {
-
-              console.log("delete", element.observableQuery.options.query.definitions[0].name.value, element.observableQuery.variables, args)
-
-            }
-          });
-
-          setTimeout(() => {
-            this.store(data, args)
-          }, 1);
-
-          // @ Help needed: doesn't work when called in async
-          // return data.map(obj => getCacheKey({ __typename: "Patient", id: obj.id }))
-        }
+        this.writeQuery(data, args)
 
       },
-        (error) => console.error(error)
-      )
+        (error) => console.error(error))
+  }
+
+  cleanCacheWatches(queryName) {
+
+    let watches: Set<any> = this._apollo.getClient().cache['watches']
+    if (watches.size > 0)
+      watches.forEach(element => {
+
+        //&& !this.deepEqual(element.query.variables, args)
+        if (element.query.definitions[0].name.value == queryName)
+          watches.delete(element)
+      })
   }
 
   deepEqual(x, y) {
