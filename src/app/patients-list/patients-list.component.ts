@@ -106,6 +106,7 @@ export class PatientsListComponent implements OnInit {
     this.lengthHack = patients.length < this.paginator.pageSize ?
       (this.paginator.pageSize * (this.paginator.pageIndex)) + patients.length :
       (this.paginator.pageSize * (this.paginator.pageIndex + 1)) + 1
+
   }
 
 

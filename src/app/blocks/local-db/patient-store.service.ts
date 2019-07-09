@@ -29,7 +29,7 @@ export class PatientStoreService extends BaseService {
 
   public getPatients(limit: number = 10, page: number = 1, filter: string = '') {
 
-    let skip = page == 1 ? 0 : page * limit
+    let skip = page == 1 ? 0 : (page - 1) * limit
     let response = this.connection.select<IPatient>({
       from: 'Patients',
       where: {
